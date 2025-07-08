@@ -1,0 +1,31 @@
+image: node:18
+
+stages:
+  - build
+  - deploy
+
+variables:
+  AWS_DEFAULT_REGION: ap-south-1
+  S3_BUCKET_NAME: oneplusxy
+
+before_script:
+  - npm install -g serve
+
+build:
+  stage: build
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+deploy:
+  stage: deploy
+  image: python:3.9
+  before_script:
+    - pip install awscli
+  script:
+    - aws s3 sync build/ s3://$S3_oneplusxy/ --delete
+  only:
+    - main
